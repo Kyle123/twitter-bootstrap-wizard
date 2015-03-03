@@ -162,10 +162,31 @@ var bootstrapWizardCreate = function(element, options) {
 		return $navigation.find(baseItemSelector).index(e);
 	};
 	this.nextIndex = function() {
-		return $navigation.find(baseItemSelector).index($activeTab) + 1;
+	    var idx;
+
+	    for (idx=$navigation.find(baseItemSelector).index($activeTab)+1;
+             idx <= obj.navigationLength();
+             idx++) {
+
+	        if ($navigation.find(baseItemSelector + ':eq(' + idx + ') a').is(":visible")) {
+	            break;
+	        }
+	    }
+	    return idx;
 	};
 	this.previousIndex = function() {
-		return $navigation.find(baseItemSelector).index($activeTab) - 1;
+
+	    var idx;
+
+	    for (idx = $navigation.find(baseItemSelector).index($activeTab) - 1;
+             idx >= 0;
+             idx--) {
+
+	        if ($navigation.find(baseItemSelector + ':eq(' + idx + ') a').is(":visible")) {
+	            break;
+	        }
+	    }
+	    return idx;
 	};
 	this.navigationLength = function() {
 		return $navigation.find(baseItemSelector).length - 1;
@@ -198,10 +219,21 @@ var bootstrapWizardCreate = function(element, options) {
 		$navigation.find(baseItemSelector + ':eq('+index+')').removeClass('disabled');
 	};
 	this.hide = function(index) {
-		$navigation.find(baseItemSelector + ':eq('+index+')').hide();
+	    $navigation.find(baseItemSelector + ':eq(' + index + ')').hide();
+	    if ($settings.onHide && typeof $settings.onHide === 'function' && $settings.onHide($activeTab, $navigation, obj.currentIndex()) === false) {
+	        return false;
+	    };
+	};
+	this.hideMany = function (indexes) {
+	    for (var i = 0; i < indexes.length; i++) {
+	        this.hide(indexes[i]);
+	    }
 	};
 	this.display = function(index) {
-		$navigation.find(baseItemSelector + ':eq('+index+')').show();
+	    $navigation.find(baseItemSelector + ':eq(' + index + ')').show();
+	    if ($settings.onDisplay && typeof $settings.onDisplay === 'function' && $settings.onDisplay($activeTab, $navigation, obj.currentIndex()) === false) {
+	        return false;
+	    };
 	};
 	this.remove = function(args) {
 		var $index = args[0];
@@ -321,11 +353,13 @@ $.fn.bootstrapWizard.defaults = {
 	onPrevious:       null,
 	onLast:           null,
 	onFirst:          null,
-  onFinish:         null,
-  onBack:           null,
+    onFinish:         null,
+    onBack:           null,
 	onTabChange:      null, 
 	onTabClick:       null,
-	onTabShow:        null
+	onTabShow: null,
+	onDisplay: null,
+    onHide: null
 };
 
 })(jQuery);
